@@ -10,13 +10,16 @@ MAX_PORTS_ALLOWED = 2
 clients = {}
 
 alerts = []
+def log_message(text):
+    with open('/var/log/syslog', 'a') as file:
+        file.write(text + '\n')
+    
 def alert(src_ip):
 	if src_ip in alerts:
 		return
 	print("[!] port scanning %s" % src_ip)
-	system("mplayer /home/soier/.music/sounds/StarCraft/usunaleskanal.wav >/dev/null 2>/dev/null &")
+	log_message("!!!!!!!!!!!!!!!!!!!!!!!!! [!] port scanning %s [!] !!!!!!!!!!!!!!!!!!!!!!!!!!" % src_ip)
 	system("zenity --warning --title='port scanning detected' --text='port scanning detected' &")
-	#system("echo 'port scanning detected' | festival --tts --language english")
 	alerts.append(src_ip)
 
 def parse(p):
@@ -25,6 +28,7 @@ def parse(p):
 		src_port = p[TCP].sport
 		dst_port = p[TCP].dport
 		print("[+] %s:%d -> %s:%d" % (src_ip, src_port, ip, dst_port))
+		log_message("[+] %s:%d -> %s:%d" % (src_ip, src_port, ip, dst_port))
 		if not src_ip in clients:
 			clients[src_ip] = set()
 		clients[src_ip].add(dst_port)
